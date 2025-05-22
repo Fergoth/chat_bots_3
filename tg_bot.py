@@ -2,16 +2,13 @@ from dotenv import load_dotenv
 import os
 from google.cloud import dialogflow
 import logging
-from telegram import Update, ForceReply, Bot
+from telegram import Update, Bot
 from telegram.ext import (
     Updater,
-    CommandHandler,
     MessageHandler,
     Filters,
     CallbackContext,
 )
-
-logger = logging.getLogger(__file__)
 
 
 def detect_intent_text(project_id, session_id, text, language_code):
@@ -36,11 +33,10 @@ class TelegramLogsHandler(logging.Handler):
         self.bot.send_message(chat_id=self.chat_id, text=log_entry)
 
 
-def response_bot(update: Update, context: CallbackContext):
+def reply(update: Update, context: CallbackContext):
     project_id = os.environ["DIALOG_FLOW_PROJECT_ID"]
     session_id = update.message.chat_id
     language_code = "RU"
-    #TODO try exept
     reply = detect_intent_text(
         project_id, session_id, update.message.text, language_code
     )
@@ -49,23 +45,23 @@ def response_bot(update: Update, context: CallbackContext):
 
 def main():
     load_dotenv()
-    chat_id = os.environ["TELEGRAM_CHAT_ID"]
-    tg_token = os.environ["TELEGRAM_BOT_TOKEN"]
-
+    logger = logging.getLogger("telegram_debug")
     tg_debug_token = os.environ.get("TELEGRAM_DEBUG_BOT_TOKEN")
+    chat_id = os.environ["TELEGRAM_CHAT_ID"]
     if tg_debug_token:
         logger.addHandler(TelegramLogsHandler(chat_id, tg_debug_token))
     logger.setLevel(logging.INFO)
-    logger.info("Эхо Бот запущен")
+    logger.info("Телеграм Бот dialogflow запущен")
+    tg_token = os.environ["TELEGRAM_BOT_TOKEN"]
 
     updater = Updater(token=tg_token)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(
-        MessageHandler(Filters.text & ~Filters.command, response_bot)
+        MessageHandler(Filters.text & ~Filters.command, reply)
     )
     updater.start_polling()
     updater.idle()
 
 
 if __name__ == "__main__":
-    print(main())
+    main()
