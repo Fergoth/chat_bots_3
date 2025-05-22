@@ -63,3 +63,7 @@ uv run tg_bot.py
 ### Пример использования
 [!test](https://github.com/user-attachments/assets/5ac4d113-ff0f-4c88-9a52-225ae07be685)
 
+[vk](https://vk.com/club230569125)
+
+[tg](https://t.me/game_of_verbs_dvmn2_bot)
+
