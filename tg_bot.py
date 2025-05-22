@@ -39,7 +39,7 @@ class TelegramLogsHandler(logging.Handler):
 
 def reply(update: Update, context: CallbackContext):
     try:
-        session_id = update.message.from_user.id
+        session_id = f"tg-{update.message.from_user.id}"
         language_code = "RU"
         project_id = context.user_data['project_id']
         reply = detect_intent_text(

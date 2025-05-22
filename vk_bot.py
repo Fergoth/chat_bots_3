@@ -37,7 +37,7 @@ class TelegramLogsHandler(logging.Handler):
 
 
 def reply(event, vk_api, project_id):
-    session_id = event.user_id
+    session_id = f"vk-{event.user_id}"
     language_code = "RU"
     reply = detect_intent_text(project_id, session_id, event.text, language_code)
     if reply:
