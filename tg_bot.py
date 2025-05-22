@@ -39,16 +39,15 @@ class TelegramLogsHandler(logging.Handler):
 
 def reply(update: Update, context: CallbackContext):
     try:
-        project_id = os.environ["DIALOG_FLOW_PROJECT_ID"]
-        session_id = update.message.chat_id
+        session_id = update.message.from_user.id
         language_code = "RU"
+        project_id = context.user_data['project_id']
         reply = detect_intent_text(
             project_id, session_id, update.message.text, language_code
         )
         update.message.reply_text(reply)
     except Exception as e:
         logger.error(f"Неизвестная ошибка:{e}")
-        time.sleep(5)
 
 
 def main():
@@ -60,8 +59,10 @@ def main():
     logger.setLevel(logging.INFO)
     logger.info("Телеграм Бот dialogflow запущен")
     tg_token = os.environ["TELEGRAM_BOT_TOKEN"]
+    project_id = os.environ["DIALOG_FLOW_PROJECT_ID"]
     updater = Updater(token=tg_token)
     dispatcher = updater.dispatcher
+    dispatcher.user_data['project_id'] = project_id
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, reply))
     updater.start_polling()
     updater.idle()
