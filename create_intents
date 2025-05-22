@@ -1,7 +1,8 @@
-from google.cloud import dialogflow
 import json
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
+from google.cloud import dialogflow
 
 
 def load_json(filepath):
@@ -42,5 +43,7 @@ if __name__ == "__main__":
             project_id=project_id,
             display_name=intent_name,
             training_phrases_parts=qa["questions"],
-            message_texts=[qa["answer"],],
+            message_texts=[
+                qa["answer"],
+            ],
         )
