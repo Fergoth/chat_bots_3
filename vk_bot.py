@@ -1,12 +1,15 @@
 import logging
 import os
 import random
+import time
 
 import vk_api as vk
 from dotenv import load_dotenv
 from google.cloud import dialogflow
 from telegram import Bot
 from vk_api.longpoll import VkEventType, VkLongPoll
+
+logger = logging.getLogger("telegram_debug")
 
 
 def detect_intent_text(project_id, session_id, text, language_code):
@@ -34,19 +37,22 @@ class TelegramLogsHandler(logging.Handler):
 
 
 def reply(event, vk_api):
-    project_id = os.environ["DIALOG_FLOW_PROJECT_ID"]
-    session_id = event.user_id
-    language_code = "RU"
-    reply = detect_intent_text(project_id, session_id, event.text, language_code)
-    if reply:
-        vk_api.messages.send(
-            user_id=event.user_id, message=reply, random_id=random.randint(1, 1000)
-        )
+    try:
+        project_id = os.environ["DIALOG_FLOW_PROJECT_ID"]
+        session_id = event.user_id
+        language_code = "RU"
+        reply = detect_intent_text(project_id, session_id, event.text, language_code)
+        if reply:
+            vk_api.messages.send(
+                user_id=event.user_id, message=reply, random_id=random.randint(1, 1000)
+            )
+    except Exception as e:
+        logger.error(f"Неизвестная ошибка:{e}")
+        time.sleep(5)
 
 
 def main():
     load_dotenv()
-    logger = logging.getLogger("telegram_debug")
     tg_debug_token = os.environ.get("TELEGRAM_DEBUG_BOT_TOKEN")
     chat_id = os.environ["TELEGRAM_CHAT_ID"]
     if tg_debug_token:

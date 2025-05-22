@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 
 from dotenv import load_dotenv
 from google.cloud import dialogflow
@@ -10,6 +11,8 @@ from telegram.ext import (
     MessageHandler,
     Updater,
 )
+
+logger = logging.getLogger("telegram_debug")
 
 
 def detect_intent_text(project_id, session_id, text, language_code):
@@ -35,18 +38,21 @@ class TelegramLogsHandler(logging.Handler):
 
 
 def reply(update: Update, context: CallbackContext):
-    project_id = os.environ["DIALOG_FLOW_PROJECT_ID"]
-    session_id = update.message.chat_id
-    language_code = "RU"
-    reply = detect_intent_text(
-        project_id, session_id, update.message.text, language_code
-    )
-    update.message.reply_text(reply)
+    try:
+        project_id = os.environ["DIALOG_FLOW_PROJECT_ID"]
+        session_id = update.message.chat_id
+        language_code = "RU"
+        reply = detect_intent_text(
+            project_id, session_id, update.message.text, language_code
+        )
+        update.message.reply_text(reply)
+    except Exception as e:
+        logger.error(f"Неизвестная ошибка:{e}")
+        time.sleep(5)
 
 
 def main():
     load_dotenv()
-    logger = logging.getLogger("telegram_debug")
     tg_debug_token = os.environ.get("TELEGRAM_DEBUG_BOT_TOKEN")
     chat_id = os.environ["TELEGRAM_CHAT_ID"]
     if tg_debug_token:
@@ -54,12 +60,9 @@ def main():
     logger.setLevel(logging.INFO)
     logger.info("Телеграм Бот dialogflow запущен")
     tg_token = os.environ["TELEGRAM_BOT_TOKEN"]
-
     updater = Updater(token=tg_token)
     dispatcher = updater.dispatcher
-    dispatcher.add_handler(
-        MessageHandler(Filters.text & ~Filters.command, reply)
-    )
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, reply))
     updater.start_polling()
     updater.idle()
 
