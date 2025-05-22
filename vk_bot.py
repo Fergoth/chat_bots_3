@@ -17,6 +17,8 @@ def detect_intent_text(project_id, session_id, text, language_code):
     response = session_client.detect_intent(
         request={"session": session, "query_input": query_input}
     )
+    if response.query_result.intent.is_fallback:
+        return None
     return response.query_result.fulfillment_text
 
 
@@ -35,12 +37,11 @@ def reply(event, vk_api):
     project_id = os.environ["DIALOG_FLOW_PROJECT_ID"]
     session_id = event.user_id
     language_code = "RU"
-    reply = detect_intent_text(
-        project_id, session_id, event.text, language_code
-    )
-    vk_api.messages.send(
-        user_id=event.user_id, message=reply, random_id=random.randint(1, 1000)
-    )
+    reply = detect_intent_text(project_id, session_id, event.text, language_code)
+    if reply:
+        vk_api.messages.send(
+            user_id=event.user_id, message=reply, random_id=random.randint(1, 1000)
+        )
 
 
 def main():
