@@ -5,11 +5,6 @@ from dotenv import load_dotenv
 from google.cloud import dialogflow
 
 
-def load_json(filepath):
-    with open(filepath, "r") as f:
-        return json.load(f)
-
-
 def create_intent(project_id, display_name, training_phrases_parts, message_texts):
     intents_client = dialogflow.IntentsClient()
 
@@ -30,16 +25,16 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
     response = intents_client.create_intent(
         request={"parent": parent, "intent": intent}
     )
-
-    print("Intent created: {}".format(response))
+    return response
 
 
 if __name__ == "__main__":
     load_dotenv()
     project_id = os.environ["DIALOG_FLOW_PROJECT_ID"]
-    intents = load_json("questions.json")
+    with open("questions.json", "r") as f:
+        intents = json.load(f)
     for intent_name, qa in intents.items():
-        create_intent(
+        response = create_intent(
             project_id=project_id,
             display_name=intent_name,
             training_phrases_parts=qa["questions"],
@@ -47,3 +42,4 @@ if __name__ == "__main__":
                 qa["answer"],
             ],
         )
+        print("Intent created: {}".format(response))
