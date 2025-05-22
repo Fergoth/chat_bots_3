@@ -41,7 +41,7 @@ def reply(update: Update, context: CallbackContext):
     try:
         session_id = f"tg-{update.message.from_user.id}"
         language_code = "RU"
-        project_id = context.user_data['project_id']
+        project_id = context.bot_data['project_id']
         reply = detect_intent_text(
             project_id, session_id, update.message.text, language_code
         )
@@ -62,7 +62,7 @@ def main():
     project_id = os.environ["DIALOG_FLOW_PROJECT_ID"]
     updater = Updater(token=tg_token)
     dispatcher = updater.dispatcher
-    dispatcher.user_data['project_id'] = project_id
+    dispatcher.bot_data['project_id'] = project_id
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, reply))
     updater.start_polling()
     updater.idle()
