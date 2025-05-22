@@ -1,13 +1,14 @@
-from dotenv import load_dotenv
-import os
-from google.cloud import dialogflow
 import logging
-from telegram import Update, Bot
+import os
+
+from dotenv import load_dotenv
+from google.cloud import dialogflow
+from telegram import Bot, Update
 from telegram.ext import (
-    Updater,
-    MessageHandler,
-    Filters,
     CallbackContext,
+    Filters,
+    MessageHandler,
+    Updater,
 )
 
 
